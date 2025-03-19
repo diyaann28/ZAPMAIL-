@@ -176,7 +176,7 @@ def check_mail(id):
                         print(f"Subject: {subject}")
                         print(f"Content:\n{email_content[:500]}")  # Show first 500 chars
                         print(f"Attachments: {', '.join(attachments) if attachments else 'None'}")
-
+                        flag=0
                         # spam=cl.check(msg)
                         spam = "ham"
                         print(spam,"----"*100)
@@ -184,8 +184,11 @@ def check_mail(id):
                             spam="not spam"
                         
                         if Email.objects.filter(email_from=email_from,email_to=email_to,content=email_content[:500],status='viewed').exists():
-                            send(yournumber,"No New Eamils, Enjoy Your Day!!")
+                            flag=1
                             pass
+                        if flag==1:
+                            send(yournumber,"No New Emails, Enjoy Your Day!!")
+                            flag=0
                         else:
                             latest_email = Email.objects.order_by('-id').first()
                             if latest_email:
