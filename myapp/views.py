@@ -815,7 +815,9 @@ def user_viewmails(request):
 
 
 def check(request, id):
-    print("okkkkkkkkkkkkkkkkkkkkkk"+ request + "and "+id)
+    print("okkkkkkkkkkkkkkkkkkkkkk")
+    print(request)
+    print(id)
     # Call the check_mail function with the provided ID
     result = check_mail(id)
    
