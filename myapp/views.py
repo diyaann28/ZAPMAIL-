@@ -16,6 +16,7 @@ from email.header import decode_header
 from django.core.management.base import BaseCommand
 from django.contrib import messages
 from django.shortcuts import redirect
+import emoji
 
 from email.mime.multipart import MIMEMultipart
 
@@ -64,7 +65,8 @@ def login(request):
         else:
             return HttpResponse(f"<script>alert('invalid username or password');window.location='/login'</script>")
     return render(request,'public/login.html')
-
+def remove_emojis(text):
+    return emoji.replace_emoji(text, replace='')  
 def check_mail(id):
     id = str(id)[2:]
     print("id",id)
@@ -188,6 +190,7 @@ def check_mail(id):
                                 code_next=latest_email.code+1
                             else:
                                 code_next=1000
+                            subject = remove_emojis(subject)
                             dd=Email()
                             dd.email_from=email_from
                             dd.email_to=email_to
