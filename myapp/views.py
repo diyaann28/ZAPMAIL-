@@ -113,6 +113,7 @@ def check_mail(id):
                 for response_part in msg_data:
                     if isinstance(response_part, tuple):
                         msg = email.message_from_bytes(response_part[1])
+                        print(msg)
 
                         # Extract email details
                         email_from = msg.get("From", "(Unknown Sender)")
@@ -229,6 +230,121 @@ def check_mail(id):
             print(f"Unexpected error: {e}")
     return "ok"
 
+
+
+import json
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import re
+
+def reply_email(request):
+    if request.method == 'POST':
+        try:
+            # Parse incoming data
+            data = json.loads(request.body)
+            
+            # Extract the message content
+            if 'data' not in data:
+                return JsonResponse({'status': 'error', 'message': 'Invalid request format'})
+            
+            whatsapp_data = data['data']
+            message_body = whatsapp_data.get('body', '')
+            
+            # Check if this is a reply to an email notification
+            quoted_msg = whatsapp_data.get('quotedMsg', {})
+            quoted_body = quoted_msg.get('body', '')
+            
+            if not quoted_body or 'New Email Received' not in quoted_body:
+                return JsonResponse({'status': 'error', 'message': 'Not a reply to an email notification'})
+            
+            # Extract the email address from the quoted message
+            email_from_match = re.search(r'\*From\*:\s*(.*?)(?:\n|$)', quoted_body)
+            if not email_from_match:
+                return JsonResponse({'status': 'error', 'message': 'Could not find sender email'})
+            
+            # Extract the email address from the "From" line
+            sender_line = email_from_match.group(1).strip()
+            email_regex = r'<([^>]+)>'
+            match = re.search(email_regex, sender_line)
+            
+            if match:
+                recipient_email = match.group(1)
+            else:
+                # If no <email> format, use the whole string if it looks like an email
+                if '@' in sender_line:
+                    recipient_email = sender_line
+                else:
+                    return JsonResponse({'status': 'error', 'message': 'Could not parse email address'})
+            
+            # Extract subject from the quoted message
+            subject_match = re.search(r'\*Subject\*:\s*(.*?)(?:\n|$)', quoted_body)
+            subject = subject_match.group(1).strip() if subject_match else "Re: No Subject"
+            
+            if not subject.startswith("Re:") and not subject.startswith("RE:"):
+                subject = f"Re: {subject}"
+            
+            # Get the phone number of the user who sent the WhatsApp message
+            phone_number = whatsapp_data.get('from', '').split('@')[0]
+            if phone_number.startswith('91'):  # Remove country code if present
+                phone_number = phone_number[2:]
+            
+            # Get user's email credentials from database
+            try:
+                user = User.objects.get(phoneno=phone_number)
+                email_account = Emails.objects.filter(USER_id=user.id).first()
+                
+                if not email_account:
+                    return JsonResponse({'status': 'error', 'message': 'No email account configured for this user'})
+                
+                sender_email = email_account.EMAIL
+                password = email_account.password
+                
+                # Compose email
+                msg = MIMEMultipart()
+                msg['From'] = sender_email
+                msg['To'] = recipient_email
+                msg['Subject'] = subject
+                
+                # Add Reply-To header
+                msg.add_header('Reply-To', sender_email)
+                
+                # Add in-reply-to and references if available
+                # These would need to be stored from the original email
+                
+                # Email body
+                msg.attach(MIMEText(message_body, 'plain'))
+                
+                # Send email
+                with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+                    server.login(sender_email, password)
+                    server.send_message(msg)
+                body="The reply had been sent to the email: "+recipient_email
+                send(phone_number,body)
+                return JsonResponse({
+                    'status': 'success', 
+                    'message': 'Email reply sent',
+                    'details': {
+                        'to': recipient_email,
+                        'from': sender_email,
+                        'subject': subject
+                    }
+                })
+                
+            except User.DoesNotExist:
+                return JsonResponse({'status': 'error', 'message': 'User not found'})
+            except Emails.DoesNotExist:
+                return JsonResponse({'status': 'error', 'message': 'Email account not configured'})
+            except Exception as e:
+                return JsonResponse({'status': 'error', 'message': f'Error sending email: {str(e)}'})
+                
+        except json.JSONDecodeError:
+            return JsonResponse({'status': 'error', 'message': 'Invalid JSON'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': f'Unexpected error: {str(e)}'})
+    
+    return JsonResponse({'status': 'error', 'message': 'Only POST method is allowed'})
+                        
+                        
 def index(request):
      return render(request,'public/index.html')
 
