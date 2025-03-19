@@ -80,9 +80,9 @@ DATABASES = {
        
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'zapmail',
-        'HOST': 'localhost',
-        'USER': 'root',
-        'PASSWORD': '',
+        'HOST': '0.0.0.0',
+        'USER': 'zapmail',
+        'PASSWORD': 'Zap@2025',
         'PORT': 3306,
     }
 }
