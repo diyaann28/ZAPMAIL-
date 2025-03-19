@@ -821,6 +821,8 @@ def check(request, id):
     # Provide feedback
     if result == "ok":
         messages.success(request, f"Successfully checked emails for user {id}")
+        return HttpResponse(f"Successfully checked emails for user {id}")
     else:
         messages.error(request, f"Error checking emails for user {id}")
+        return HttpResponse(f"Error checking emails for user {id}")
     
