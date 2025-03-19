@@ -17,7 +17,7 @@ from django.core.management.base import BaseCommand
 from django.contrib import messages
 from django.shortcuts import redirect
 import emoji
-
+import html
 from email.mime.multipart import MIMEMultipart
 
 from django.db import models
@@ -151,6 +151,7 @@ def check_mail(id):
                         for part in msg.walk():
                             if part.get_content_type() == "text/plain":
                                 email_content = part.get_payload(decode=True).decode(errors="ignore")
+                                email_content = html.unescape(email_content) 
 
                         # Extract attachments
                         attachments = []
