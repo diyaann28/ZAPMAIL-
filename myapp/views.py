@@ -825,6 +825,8 @@ def check(request, id):
     try:
         # Call the check_mail function with the provided ID
         result = check_mail(id)
+        print(result);
+        print("dnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn")
         
         # Provide feedback based on the result
         if result == "ok":
