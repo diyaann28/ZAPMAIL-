@@ -17,10 +17,6 @@ from django.core.management.base import BaseCommand
 from django.contrib import messages
 from django.shortcuts import redirect
 
-import json
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-import re
 
 from django.db import models
 from django.db.models.signals import post_save
@@ -73,7 +69,7 @@ def check_mail(id):
     print("id",id)
     gg=User.objects.get(phoneno=phone_number)
     ff=Emails.objects.filter(USER_id=gg.id)
-    print(ff)
+    
     for i in ff:
         # remove the country code from the phone number
         
@@ -226,126 +222,13 @@ def check_mail(id):
                                 print(f"WhatsApp Message Sent! SID")
 
             mail.logout()
-            return "ok"
 
         except imaplib.IMAP4.error as e:
             print(f"IMAP error: {e}")
         except Exception as e:
             print(f"Unexpected error: {e}")
-    
+    return "ok"
 
-
-
-
-def reply_email(request):
-    if request.method == 'POST':
-        try:
-            # Parse incoming data
-            data = json.loads(request.body)
-            
-            # Extract the message content
-            if 'data' not in data:
-                return JsonResponse({'status': 'error', 'message': 'Invalid request format'})
-            
-            whatsapp_data = data['data']
-            message_body = whatsapp_data.get('body', '')
-            
-            # Check if this is a reply to an email notification
-            quoted_msg = whatsapp_data.get('quotedMsg', {})
-            quoted_body = quoted_msg.get('body', '')
-            
-            if not quoted_body or 'New Email Received' not in quoted_body:
-                print("NOT A REPLY MSG!")
-                # return JsonResponse({'status': 'error', 'message': 'Not a reply to an email notification'})
-            
-            # Extract the email address from the quoted message
-            email_from_match = re.search(r'\*From\*:\s*(.*?)(?:\n|$)', quoted_body)
-            if not email_from_match:
-                return JsonResponse({'status': 'error', 'message': 'Could not find sender email'})
-            
-            # Extract the email address from the "From" line
-            sender_line = email_from_match.group(1).strip()
-            email_regex = r'<([^>]+)>'
-            match = re.search(email_regex, sender_line)
-            
-            if match:
-                recipient_email = match.group(1)
-            else:
-                # If no <email> format, use the whole string if it looks like an email
-                if '@' in sender_line:
-                    recipient_email = sender_line
-                else:
-                    return JsonResponse({'status': 'error', 'message': 'Could not parse email address'})
-            
-            # Extract subject from the quoted message
-            subject_match = re.search(r'\*Subject\*:\s*(.*?)(?:\n|$)', quoted_body)
-            subject = subject_match.group(1).strip() if subject_match else "Re: No Subject"
-            
-            if not subject.startswith("Re:") and not subject.startswith("RE:"):
-                subject = f"Re: {subject}"
-            
-            # Get the phone number of the user who sent the WhatsApp message
-            phone_number = whatsapp_data.get('from', '').split('@')[0]
-            if phone_number.startswith('91'):  # Remove country code if present
-                phone_number = phone_number[2:]
-            
-            # Get user's email credentials from database
-            try:
-                user = User.objects.get(phoneno=phone_number)
-                email_account = Emails.objects.filter(USER_id=user.id).first()
-                
-                if not email_account:
-                    return JsonResponse({'status': 'error', 'message': 'No email account configured for this user'})
-                
-                sender_email = email_account.EMAIL
-                password = email_account.password
-                
-                # Compose email
-                msg = MIMEMultipart()
-                msg['From'] = sender_email
-                msg['To'] = recipient_email
-                msg['Subject'] = subject
-                
-                # Add Reply-To header
-                msg.add_header('Reply-To', sender_email)
-                
-                # Add in-reply-to and references if available
-                # These would need to be stored from the original email
-                
-                # Email body
-                msg.attach(MIMEText(message_body, 'plain'))
-                
-                # Send email
-                with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
-                    server.login(sender_email, password)
-                    server.send_message(msg)
-                body="The reply had been sent to the email: "+recipient_email
-                send(phone_number,body)
-                return JsonResponse({
-                    'status': 'success', 
-                    'message': 'Email reply sent',
-                    'details': {
-                        'to': recipient_email,
-                        'from': sender_email,
-                        'subject': subject
-                    }
-                })
-                
-            except User.DoesNotExist:
-                return JsonResponse({'status': 'error', 'message': 'User not found'})
-            except Emails.DoesNotExist:
-                return JsonResponse({'status': 'error', 'message': 'Email account not configured'})
-            except Exception as e:
-                return JsonResponse({'status': 'error', 'message': f'Error sending email: {str(e)}'})
-                
-        except json.JSONDecodeError:
-            return JsonResponse({'status': 'error', 'message': 'Invalid JSON'})
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'message': f'Unexpected error: {str(e)}'})
-    
-    return JsonResponse({'status': 'error', 'message': 'Only POST method is allowed'})
-                        
-                        
 def index(request):
      return render(request,'public/index.html')
 
@@ -390,7 +273,7 @@ We’re excited to have you on board! 🚀
 
 If you have any questions or need assistance, feel free to reach out. 📬
 """ 
-            send(number,message_body)
+            send_message_to_whatsapp(message_body)
             return HttpResponse(f"<script>alert('Registered successfully');window.location='/login'</script>")
         else:
             return HttpResponse(f"<script>alert('OTP doesnot match');window.location='/login'</script>")
@@ -822,22 +705,12 @@ def user_viewmails(request):
 
 
 def check(request, id):
-    try:
-        # Call the check_mail function with the provided ID
-        result = check_mail(id)
-        print(result);
-        print("dnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn")
-        
-        # Provide feedback based on the result
-        if result == "ok":
-            messages.success(request, f"Successfully checked emails for user {id}")
-            return HttpResponse("ok")
-        else:
-            messages.error(request, f"Error checking emails for user {id}")
-            return HttpResponse("Error in email check response")
-    
-    except Exception as e:
-        # Catch any unexpected errors
-        messages.error(request, f"An unexpected error occurred while checking emails for user {id}: {str(e)}")
-        return HttpResponse(f"Error: {str(e)}")
+    # Call the check_mail function with the provided ID
+    result = check_mail(id)
+    print("okkkkkkkkkkkkkkkkkkkkkk"+ result)
+    # Provide feedback
+    if result == "ok":
+        messages.success(request, f"Successfully checked emails for user {id}")
+    else:
+        messages.error(request, f"Error checking emails for user {id}")
     
