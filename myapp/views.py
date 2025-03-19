@@ -17,6 +17,10 @@ from django.core.management.base import BaseCommand
 from django.contrib import messages
 from django.shortcuts import redirect
 
+import json
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import re
 
 from django.db import models
 from django.db.models.signals import post_save
@@ -232,10 +236,6 @@ def check_mail(id):
 
 
 
-import json
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-import re
 
 def reply_email(request):
     if request.method == 'POST':
@@ -830,5 +830,5 @@ def check(request, id):
         return HttpResponse("ok")
     else:
         messages.error(request, f"Error checking emails for user {id}")
-        return HttpResponse("error")
+        return HttpResponse("YOU HAVE AN ERROR")
     
