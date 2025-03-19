@@ -113,7 +113,6 @@ def check_mail(id):
                 for response_part in msg_data:
                     if isinstance(response_part, tuple):
                         msg = email.message_from_bytes(response_part[1])
-                        print(msg)
 
                         # Extract email details
                         email_from = msg.get("From", "(Unknown Sender)")
@@ -223,12 +222,13 @@ def check_mail(id):
                                 print(f"WhatsApp Message Sent! SID")
 
             mail.logout()
+            return "ok"
 
         except imaplib.IMAP4.error as e:
             print(f"IMAP error: {e}")
         except Exception as e:
             print(f"Unexpected error: {e}")
-    return "ok"
+    
 
 
 
