@@ -273,7 +273,7 @@ We’re excited to have you on board! 🚀
 
 If you have any questions or need assistance, feel free to reach out. 📬
 """ 
-            send_message_to_whatsapp(message_body)
+            send(number,message_body)
             return HttpResponse(f"<script>alert('Registered successfully');window.location='/login'</script>")
         else:
             return HttpResponse(f"<script>alert('OTP doesnot match');window.location='/login'</script>")
