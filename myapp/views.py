@@ -823,7 +823,6 @@ def user_viewmails(request):
 def check(request, id):
     # Call the check_mail function with the provided ID
     result = check_mail(id)
-    print("okkkkkkkkkkkkkkkkkkkkkk"+ result)
     # Provide feedback
     if result == "ok":
         messages.success(request, f"Successfully checked emails for user {id}")
