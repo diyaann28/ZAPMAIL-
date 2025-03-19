@@ -66,9 +66,9 @@ def login(request):
     return render(request,'public/login.html')
 
 def check_mail(id):
-    phone_number = str(id)[2:]
+    id = str(id)[2:]
     print("id",id)
-    gg=User.objects.get(phoneno=phone_number)
+    gg=User.objects.get(phoneno=id)
     ff=Emails.objects.filter(USER_id=gg.id)
     
     for i in ff:
