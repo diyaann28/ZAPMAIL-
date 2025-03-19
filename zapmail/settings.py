@@ -84,7 +84,10 @@ DATABASES = {
         'USER': 'zapmail',
         'PASSWORD': 'Zap@2025',
         'PORT': 3306,
-    }
+    } ,
+    'OPTIONS': {
+            'charset': 'utf8mb4',
+    },
 }
 
    
