@@ -31,8 +31,8 @@ class Feedback(models.Model):
     rating=models.CharField(max_length=50)
 
 class Email(models.Model):
-    email_from=models.CharField(max_length=50)
-    email_to=models.CharField(max_length=50)
+    email_from=models.CharField(max_length=1000)
+    email_to=models.CharField(max_length=1000)
     content=models.TextField()
     attatchment=models.CharField(max_length=500)
     subject=models.CharField(max_length=500,default="")
@@ -40,11 +40,11 @@ class Email(models.Model):
     time=models.CharField(max_length=50,default="")
     status=models.CharField(max_length=50,default="")
     code=models.IntegerField(default=1000)
-    result=models.CharField(max_length=50,default="")
+    result=models.CharField(max_length=1000,default="")
 
 
 class Emails(models.Model):
-    EMAIL=models.CharField(max_length=50)
+    EMAIL=models.CharField(max_length=1000)
     USER=models.ForeignKey(User,on_delete=models.CASCADE)
     password=models.CharField(max_length=50)
 
