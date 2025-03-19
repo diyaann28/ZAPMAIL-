@@ -73,7 +73,7 @@ def check_mail(id):
     print("id",id)
     gg=User.objects.get(phoneno=phone_number)
     ff=Emails.objects.filter(USER_id=gg.id)
-    
+    print(ff)
     for i in ff:
         # remove the country code from the phone number
         
