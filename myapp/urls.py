@@ -39,7 +39,7 @@ urlpatterns = [
     path('sedd',views.sedd),
     path('reply',views.reply_email),
     path('send_sms',views.sendsms),
-    path('check/<int:id>/', views.check, name='check'),
+    path('check/<int:id>', views.check, name='check'),
     # path("whatsapp-webhook/", views.whatsapp_reply, name="whatsapp_webhook"),
 
 
