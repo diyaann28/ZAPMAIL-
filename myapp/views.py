@@ -184,9 +184,9 @@ def check_mail(id):
                             spam="not spam"
                         
                         if Email.objects.filter(email_from=email_from,email_to=email_to,content=email_content[:500],status='viewed').exists():
-                            flag=1
+                            flag=flag+1
                             pass
-                        if flag==1:
+                        if flag==5:
                             send(yournumber,"No New Emails, Enjoy Your Day!!")
                             flag=0
                         else:
