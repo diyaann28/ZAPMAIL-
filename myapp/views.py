@@ -199,7 +199,7 @@ def check_mail(id):
                             dd.status="viewed"
                             dd.code=code_next
                             dd.result=spam
-                            dd.save()
+                            # dd.save()
 
 
                             # client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
