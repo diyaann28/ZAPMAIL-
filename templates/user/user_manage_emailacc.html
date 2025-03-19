@@ -1,0 +1,30 @@
+{% include 'user/user_header.html' %}
+
+
+
+<div class="container mt-5" style="display: flex; justify-content: center; align-items: center; margin: 0; padding: 0;">
+    <div class="email-card" style="background-color: #fff; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); border-radius: 10px; width: 600px; padding: 30px; text-align: center; transition: transform 0.3s ease; display: flex; justify-content: center; align-items: center; flex-direction: column;">
+        <h1 style="font-family: Georgia, 'Times New Roman', Times, serif; color: #333; margin-bottom: 40px;">MANAGE EMAIL ACCOUNTS</h1> <!-- Increased margin-bottom -->
+
+        <a href="/user_add_emailacc" class="button" style="display: inline-block; background-color: rgb(87, 158, 229); color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin: 20px 0; text-align: center;">Add New Email Account</a>
+
+        <div class="email-cards-container" style="display: flex; flex-wrap: wrap; justify-content: center; margin-top: 20px; align-items: center;">
+            {% if data %}
+                {% for i in data %}
+                    <div class="email-item-card" style="background-color: #fff; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); border-radius: 10px; width: 280px; margin: 10px 10px 20px 10px; padding: 20px; text-align: center; transition: transform 0.3s ease;">
+                        <div class="email-card-content">
+                            <h3 style="margin: 10px 0; color: #333; font-size: 18px;">Email ID: {{i.EMAIL}}</h3>
+                            <p style="margin: 5px 0; color: #555; font-size: 14px;">Password: {{i.password}}</p>
+                            <div class="action-buttons" style="margin-top: 15px;">
+                                <a href="/user_edit_emailacc/{{i.id}}" class="edit-btn" style="text-decoration: none; color: white; padding: 8px 16px; border-radius: 5px; margin: 5px; display: inline-block; background-color: #007BFF;">Edit</a>
+                                <a href="/user_delete_email/{{i.id}}" class="delete-btn" style="text-decoration: none; color: white; padding: 8px 16px; border-radius: 5px; margin: 5px; display: inline-block; background-color: #dc3545;">Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% include 'user/user_footer.html' %}

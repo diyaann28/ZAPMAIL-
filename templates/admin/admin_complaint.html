@@ -1,0 +1,125 @@
+{% include 'admin/admin_header.html' %}
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+        color: white;
+    }
+
+    .container1 {
+        padding: 40px;
+        background-color: white;
+        border-radius: 10px;
+        margin-top: 30px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    h1 {
+        font-family: Georgia, 'Times New Roman', Times, serif;
+        font-size: 2.5em;
+        color: black;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    table {
+        width: 100%;
+        margin: 20px 0;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+    th, td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid black;
+    }
+
+    th {
+        background-color: rgb(87, 158, 229);
+        color: white;
+        font-size: 16px;
+    }
+
+   
+
+    td {
+        color: black;
+        font-size: 14px;
+    }
+
+    input[type="text"] {
+        padding: 8px 12px;
+        margin: 5px 0;
+        border-radius: 5px;
+        border: 1px solid black;
+        width: 200px;
+        font-size: 14px;
+        background-color: #fff;
+        color: #333;
+    }
+
+    input[type="submit"] {
+        padding: 10px 15px;
+        background-color: rgb(87, 158, 229);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    input[type="submit"]:hover {
+        background-color: #4b76a0;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .table-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+</style>
+
+<div class="container1">
+    <center>
+        <h1 style="font-family: Georgia, 'Times New Roman', Times, serif;">VIEW COMPLAINT</h1>
+        <div class="table-container">
+            <table class="table">
+                <tr>
+                    <th>User</th>
+                    <th>Date</th>
+                    <th>Complaint</th>
+                    <th colspan="3">Reply</th>
+                </tr>
+                {% if data %}
+                    {% for i in data %}
+                        <tr>
+                            <td>{{i.USER.firstname}}</td>
+                            <td>{{i.date}}</td>
+                            <td>{{i.complaint}}</td>
+                            <td>{{i.reply}}</td>
+                            <td>
+                                <form method="post">
+                                    <input type="hidden" name="id" value="{{i.id}}">
+                                    <input type="text" name="reply" placeholder="send reply..." required>
+                                    <input type="submit" name="submit" value="Send">
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% endif %}
+            </table>
+        </div>
+    </center>
+</div>
+
+{% include 'admin/admin_footer.html' %}

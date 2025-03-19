@@ -1,0 +1,118 @@
+{% include 'public/public_header.html' %}
+<head>
+    <meta name="csrf-token" content="{{ csrf_token }}">
+</head>
+<!-- Include Bootstrap CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+<style>
+    body {
+        background-color: aliceblue;
+    }
+
+    .register-container {
+        max-width: 600px;
+        margin: 50px auto;
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#otp-button').click(function() {
+            const email = $('#email').val();
+            // alert(email);
+            // if (!email) {
+            //     alert("Please enter your email.");
+            //     return;
+            // }
+    
+            $.post('/otp_verification', { email: email }, function(response) {
+                alert(response.message);  // Show success message
+            }).fail(function(xhr) {
+                alert(xhr.responseJSON?.message || "Error occurred while sending OTP.");
+            });
+        });
+    });
+</script>
+
+
+<div class="container register-container">
+    <form action="" method="post" class="needs-validation">
+        <h1 style="font-family: Georgia, 'Times New Roman', Times, serif;" class="text-center mb-4">REGISTER</h1>
+        <div class="mb-3">
+            <label for="firstname" class="form-label">First Name</label>
+            <input type="text" id="firstname" name="firstname" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="lastname" class="form-label">Last Name</label>
+            <input type="text" id="lastname" name="lastname" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" id="username" name="username" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" id="password" name="password" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="number" class="form-label">Phone Number</label>
+            <input type="number" id="number" name="number" class="form-control" pattern="^\d{10}$" required>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email ID</label>
+            <input type="email" id="email" name="email" class="form-control" required>
+            <button type="button" id="otp-button">Send OTP</button>
+        </div>
+        <div class="mb-3">
+            <label for="otp" class="form-label">OTP</label>
+            <input type="text" id="otp1" name="otp1" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="place" class="form-label">Place</label>
+            <input type="text" id="place" name="place" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="pincode" class="form-label">Pincode</label>
+            <input type="number" id="pincode" name="pincode" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="post" class="form-label">Post</label>
+            <input type="text" id="post" name="post" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="city" class="form-label">City</label>
+            <input type="text" id="city" name="city" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="districts" class="form-label">District</label>
+            <select name="districts" class="form-select" required>
+                <option disabled selected value="">Select District</option>
+                <option value="alappuzha">Alappuzha</option>
+                <option value="ernakulam">Ernakulam</option>
+                <option value="idukki">Idukki</option>
+                <option value="kannur">Kannur</option>
+                <option value="kasaragod">Kasaragod</option>
+                <option value="kollam">Kollam</option>
+                <option value="kottayam">Kottayam</option>
+                <option value="kozhikode">Kozhikode</option>
+                <option value="malappuram">Malappuram</option>
+                <option value="palakkad">Palakkad</option>
+                <option value="pathanamthitta">Pathanamthitta</option>
+                <option value="thiruvananthapuram">Thiruvananthapuram</option>
+                <option value="thrissur">Thrissur</option>
+                <option value="wayanad">Wayanad</option>
+            </select>
+        </div>
+        <div class="text-center">
+            <button type="submit" name="submit" class="btn btn-primary">Submit</button>
+        </div>
+    </form>
+</div>
+
+{% include 'public/public_footer.html' %}

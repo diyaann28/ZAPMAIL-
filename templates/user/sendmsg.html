@@ -1,0 +1,40 @@
+{% include 'user/user_header.html' %}
+<body style="margin: 0; padding: 0; background-color: #f4f4f9;">
+    <div style="font-family: Georgia, 'Times New Roman', Times, serif; width: 60%; margin: 20px auto; background: #fff; padding: 20px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); border-radius: 8px;">
+
+<form id="form1" name="form1" method="post" action="/sedd">
+  <table border="1"  class="table" align="center">
+
+
+
+    <tr>
+
+        <td>Message</td>
+        <td><textarea name="msg"  class="form-control" required pattern="[A-Z a-z.]{3,25}"></textarea></td>
+
+    </tr>
+
+    {% if data %}
+    <tr>
+
+      <td>Result</td>
+      <td>{{ data }}</td>
+
+  </tr>
+    {% endif %}
+
+
+    <tr align="center">
+      <td colspan="2"><label>
+
+          <input type="submit" name="Submit" value="Send" class="btn btn-primary" />
+          <a href="sendessage" class="btn btn-danger">Close</a>
+             </label></td>
+    </tr>
+  </table>
+
+</form>
+</div>
+</body>
+
+{% include 'user/user_footer.html' %}

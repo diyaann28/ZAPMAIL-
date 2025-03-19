@@ -1,0 +1,92 @@
+{% include 'user/user_header.html' %}
+
+<style>
+    .profile-card {
+        background-color: #ecf0f1;
+        color: black;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        padding: 20px;
+        font-family: Georgia, 'Times New Roman', Times, serif;
+        max-width: 500px;
+        margin: auto;
+        text-align: left;
+    }
+    .profile-card h1 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .profile-card .profile-item {
+        margin: 10px 0;
+        display: flex;
+        justify-content: space-between;
+    }
+    .profile-card .label {
+        font-weight: bold;
+    }
+    .edit-btn {
+        display: inline-block;
+        background-color:rgb(87, 158, 229);
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 5px;
+        margin-top: 20px;
+        text-align: center;
+        width: 100%;
+    }
+    .edit-btn:hover {
+        background-color: #4b76a0;
+    }
+</style>
+
+<div class="container">
+    <div class="profile-card">
+        <h1 style="color: black;">PROFILE</h1>
+        <div class="profile-item">
+            <span class="label">First Name:</span>
+            <span>{{data.firstname}}</span>
+        </div>
+        <div class="profile-item">
+            <span class="label">Last Name:</span>
+            <span>{{data.lastname}}</span>
+        </div>
+        <div class="profile-item">
+            <span class="label">Username:</span>
+            <span>{{data.username}}</span>
+        </div>
+        <div class="profile-item">
+            <span class="label">Email:</span>
+            <span>{{data.email}}</span>
+        </div>
+        <div class="profile-item">
+            <span class="label">Phone Number:</span>
+            <span>{{data.phoneno}}</span>
+        </div>
+        <div class="profile-item">
+            <span class="label">Place:</span>
+            <span>{{data.place}}</span>
+        </div>
+        <div class="profile-item">
+            <span class="label">Pincode:</span>
+            <span>{{data.pincode}}</span>
+        </div>
+        <div class="profile-item">
+            <span class="label">Post Office:</span>
+            <span>{{data.post}}</span>
+        </div>
+        <div class="profile-item">
+            <span class="label">City:</span>
+            <span>{{data.city}}</span>
+        </div>
+        <div class="profile-item">
+            <span class="label">District:</span>
+            <span>{{data.district}}</span>
+        </div>
+
+        <!-- Edit Button -->
+        <a href="/user_edit_profile" class="edit-btn" >Edit Profile</a>
+    </div>
+</div>
+
+{% include 'user/user_footer.html' %}
