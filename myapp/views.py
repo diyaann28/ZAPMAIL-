@@ -822,13 +822,20 @@ def user_viewmails(request):
 
 
 def check(request, id):
-    # Call the check_mail function with the provided ID
-    result = check_mail(id)
-    # Provide feedback
-    if result == "ok":
-        messages.success(request, f"Successfully checked emails for user {id}")
-        return HttpResponse("ok")
-    else:
-        messages.error(request, f"Error checking emails for user {id}")
-        return HttpResponse("YOU HAVE AN ERROR")
+    try:
+        # Call the check_mail function with the provided ID
+        result = check_mail(id)
+        
+        # Provide feedback based on the result
+        if result == "ok":
+            messages.success(request, f"Successfully checked emails for user {id}")
+            return HttpResponse("ok")
+        else:
+            messages.error(request, f"Error checking emails for user {id}")
+            return HttpResponse("Error in email check response")
+    
+    except Exception as e:
+        # Catch any unexpected errors
+        messages.error(request, f"An unexpected error occurred while checking emails for user {id}: {str(e)}")
+        return HttpResponse(f"Error: {str(e)}")
     
