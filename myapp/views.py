@@ -255,7 +255,8 @@ def reply_email(request):
             quoted_body = quoted_msg.get('body', '')
             
             if not quoted_body or 'New Email Received' not in quoted_body:
-                return JsonResponse({'status': 'error', 'message': 'Not a reply to an email notification'})
+                print("NOT A REPLY MSG!")
+                # return JsonResponse({'status': 'error', 'message': 'Not a reply to an email notification'})
             
             # Extract the email address from the quoted message
             email_from_match = re.search(r'\*From\*:\s*(.*?)(?:\n|$)', quoted_body)
@@ -826,6 +827,8 @@ def check(request, id):
     # Provide feedback
     if result == "ok":
         messages.success(request, f"Successfully checked emails for user {id}")
+        return "ok"
     else:
         messages.error(request, f"Error checking emails for user {id}")
+        return "error"
     
