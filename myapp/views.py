@@ -260,6 +260,20 @@ def register(request):
             q.save()
             q1=User(LOGIN=q,firstname=firstname,lastname=lastname,username=username,email=email,phoneno=number,place=place,pincode=pincode,post=post,city=city)
             q1.save()
+            
+            message_body = f"""
+🎉 *Congratulations, {firstname}!* 🎉
+
+You have successfully registered on *ZapMail*! 🎉
+
+👉 To complete your setup, please create a mail password by following this link: [Google App Passwords](https://myaccount.google.com/apppasswords)
+
+We’re excited to have you on board! 🚀
+
+
+If you have any questions or need assistance, feel free to reach out. 📬
+""" 
+            send(number,message_body)
             return HttpResponse(f"<script>alert('Registered successfully');window.location='/login'</script>")
         else:
             return HttpResponse(f"<script>alert('OTP doesnot match');window.location='/login'</script>")
@@ -508,6 +522,32 @@ def add_rating(request):
     m = Feedback(USER_id = uid, rating = rating,date=date,feedback=review)
     m.save()
     return JsonResponse({'status':'ok'})
+
+import http.client
+import ssl
+
+def send(TO_NUMBER, MESSAGE):
+    # Establish a secure connection
+    conn = http.client.HTTPSConnection("api.ultramsg.com", context=ssl._create_unverified_context())
+
+    # Build payload
+    payload = f"token={TOKEN}&to={TO_NUMBER}&body={MESSAGE}"
+    payload = payload.encode('utf-8').decode('iso-8859-1')
+
+    # Send the request
+    headers = {'content-type': "application/x-www-form-urlencoded"}
+    conn.request("POST", f"/{INSTANCE_ID}/messages/chat", payload, headers)
+
+    # Get the response
+    res = conn.getresponse()
+    data = res.read()
+
+    # Print the response
+    print(data.decode("utf-8"))
+
+# Example usage
+# send_whatsapp_message("your_token", "receiver_number", "Hello, this is a test message!", "your_instance_id")
+
 def send_message_to_whatsapp(email_subject, email_from,TO_number):
   
 
