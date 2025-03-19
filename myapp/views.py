@@ -147,8 +147,8 @@ def check_mail(id):
                         # Extract email content
                         email_content = ""
                         for part in msg.walk():
-                            
-                            email_content = part.get_payload(decode=True).decode(errors="ignore")
+                            if part.get_content_type() == "text/plain":
+                                email_content = part.get_payload(decode=True).decode(errors="ignore")
 
                         # Extract attachments
                         attachments = []
