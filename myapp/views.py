@@ -47,7 +47,7 @@ def login(request):
                     if res2:
                         request.session['log']="in"
                         request.session['user_id']=res2.pk
-                        check_mail(res2.pk)
+                        # check_mail(res2.pk)
                         return HttpResponse(f"<script>alert('welcome user');window.location='/userhome'</script>")
                     else:
                         return HttpResponse(f"<script>alert('Invalid user ');window.location=/'login'</script>")
