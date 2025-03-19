@@ -147,8 +147,8 @@ def check_mail(id):
                         # Extract email content
                         email_content = ""
                         for part in msg.walk():
-                            if part.get_content_type() == "text/plain":
-                                email_content = part.get_payload(decode=True).decode(errors="ignore")
+                            
+                            email_content = part.get_payload(decode=True).decode(errors="ignore")
 
                         # Extract attachments
                         attachments = []
@@ -180,9 +180,7 @@ def check_mail(id):
                         if spam =="ham":
                             spam="not spam"
                         
-                        if Email.objects.filter(email_from=email_from,email_to=email_to,content=email_content[:500],status='viewed').exists():
-                            pass
-                        else:
+                        
                             latest_email = Email.objects.order_by('-id').first()
                             if latest_email:
                                 code_next=latest_email.code+1
