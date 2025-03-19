@@ -379,7 +379,7 @@ def sedd(request):
     return render(request,"user/sendmsg.html",{"data":spam})
 
 def sendsms(request):
-
+    
     sub = request.POST['msg']
     print(sub,)
    
@@ -821,7 +821,7 @@ def user_viewmails(request):
 
 
 def check(request, id):
-    print("okkkkkkkkkkkkkkkkkkkkkk")
+    send(id,"PLEASE WAIT...FETCHING....")
     print(request)
     print(id)
     # Call the check_mail function with the provided ID
