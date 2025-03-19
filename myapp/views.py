@@ -65,15 +65,15 @@ def login(request):
     return render(request,'public/login.html')
 
 def check_mail(id):
-    id = str(id)[2:]
+    phone_number = str(id)[2:]
     print("id",id)
-    gg=User.objects.get(phoneno=id)
+    gg=User.objects.get(phoneno=phone_number)
     ff=Emails.objects.filter(USER_id=gg.id)
     
     for i in ff:
         # remove the country code from the phone number
         
-        uu=User.objects.get(phoneno=id)
+        uu = User.objects.get(id=gg.id)
         
         email_id=i.EMAIL
         password=i.password
