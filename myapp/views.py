@@ -181,7 +181,7 @@ def check_mail(id):
                             spam="not spam"
                         
                         if Email.objects.filter(email_from=email_from,email_to=email_to,content=email_content[:500],status='viewed').exists():
-                            send(yournumber, "No New Emails, Enjoy Your Day!!")
+                            send(yournumber, "No New Emails, Enjoy Your Day! ")
                         else:
                             latest_email = Email.objects.order_by('-id').first()
                             if latest_email:
@@ -199,7 +199,7 @@ def check_mail(id):
                             dd.status="viewed"
                             dd.code=code_next
                             dd.result=spam
-                            # dd.save()
+                            dd.save()
 
 
                             # client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
