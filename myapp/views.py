@@ -134,9 +134,9 @@ def check_mail(id):
                         if subject_header:
                             subject, encoding = decode_header(subject_header)[0]
                             if isinstance(subject, bytes):
-                                subject = subject.decode(encoding or "utf-8")
+                                subject = subject.decode(encoding or "utf-8", errors="ignore")
                         else:
-                            subject = "(No Subject)"
+                            subject = "No Subject"
 
                         # Extract email content
                         email_content = ""
