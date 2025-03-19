@@ -52,7 +52,6 @@ jobs:
     - name: Install dependencies
       run: |
         source venv/bin/activate
-        pip install -r requirements.txt
 
     - name: Deploy to server
       run: |
