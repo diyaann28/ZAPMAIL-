@@ -133,10 +133,16 @@ def check_mail(id):
                         subject_header = msg["Subject"]
                         if subject_header:
                             subject, encoding = decode_header(subject_header)[0]
-                            if isinstance(subject, bytes):
-                                subject = subject.decode(encoding or "utf-8", errors="ignore")
+                        if isinstance(subject, bytes):
+                            try:
+                                subject = subject.decode(encoding or "utf-8", errors="replace")  # Use 'replace' to avoid errors
+                            except UnicodeDecodeError:
+                                subject = subject.decode("utf-8", errors="ignore")  # Fallback
                         else:
-                            subject = "No Subject"
+                                subject = "No Subject"
+
+# Ensure subject length does not exceed MySQL column size (255 characters)
+                        subject = subject[:255]
 
                         # Extract email content
                         email_content = ""
