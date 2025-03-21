@@ -621,6 +621,8 @@ def reply_email(request):
                 print("NOT A REPLY MSG!")
                 # return JsonResponse({'status': 'error', 'message': 'Not a reply to an email notification'})
             if "#Reply" in message_body:
+                # remove #Reply from the message
+                message_body = message_body.replace("#Reply", "")
                 # Extract the email address from the quoted message
                 email_from_match = re.search(r'\*From\*:\s*(.*?)(?:\n|$)', quoted_body)
                 if not email_from_match:
