@@ -11,7 +11,6 @@ on:
 jobs:
   setup:
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -54,8 +53,11 @@ jobs:
         source venv/bin/activate
 
     - name: Deploy to server
+      env:
+        SERVER_PASSWORD: ${{ secrets.PASS }}
       run: |
-        sshpass -p '12345678' ssh -o StrictHostKeyChecking=no root@82.112.226.47 << 'EOF'
+        sudo apt-get install -y sshpass
+        sshpass -p "$SERVER_PASSWORD" ssh -o StrictHostKeyChecking=no root@82.112.226.47 << 'EOF'
           cd ~/ZAPMAIL-
           git pull origin main
           source venv/bin/activate
