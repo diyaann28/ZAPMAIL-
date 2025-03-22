@@ -714,7 +714,9 @@ def reply_email(request):
                 summary = simple_summary(quoted_body)
                 send(phone_number,summary)
                 return JsonResponse({'status': 'success', 'message': 'Summary sent'})
-       
+            else:
+                return JsonResponse({'status': 'error', 'message': 'Invalid command'})
+             
         except json.JSONDecodeError:
             return JsonResponse({'status': 'error', 'message': 'Invalid JSON'})
         except Exception as e:
