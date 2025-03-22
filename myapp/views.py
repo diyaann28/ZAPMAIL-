@@ -19,12 +19,12 @@ from django.shortcuts import redirect
 import emoji
 import html
 from email.mime.multipart import MIMEMultipart
-
+from dotenv import load_dotenv
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from twilio.rest import Client
-
+load_dotenv()
 import http.client
 import ssl
 TOKEN = "68xjq335qtkqx8z9"
@@ -252,7 +252,14 @@ def adminhome(request):
 
 def userhome(request):
      return render(request,'user/userhome.html')
+def summary(request):
+    if '#summary' in request.POST:
+        # //send to chatgpt to check the summary of mail
+        email_text = request.POST['email_text']
+        summary = simple_summary(email_text)
 
+        return HttpResponse(f"<script>alert('Summary: {summary}');window.location='/summary'</script>")
+    return render(request,'public/summary.html')
 def register(request):
      if 'submit' in request.POST:
         # Generate a 4-digit random number
@@ -601,7 +608,7 @@ def send_message_to_whatsapp(email_subject, email_from,TO_number):
 
 
 def reply_email(request):
-    if request.method == 'POST':
+ 
         try:
             # Parse incoming data
             data = json.loads(request.body)
@@ -616,6 +623,7 @@ def reply_email(request):
             # Check if this is a reply to an email notification
             quoted_msg = whatsapp_data.get('quotedMsg', {})
             quoted_body = quoted_msg.get('body', '')
+            phone_number = whatsapp_data.get('from', '').split('@')[0]
             
             if not quoted_body or 'New Email Received' not in quoted_body:
                 print("NOT A REPLY MSG!")
@@ -650,9 +658,7 @@ def reply_email(request):
                     subject = f"Re: {subject}"
                 
                 # Get the phone number of the user who sent the WhatsApp message
-                phone_number = whatsapp_data.get('from', '').split('@')[0]
-                if phone_number.startswith('91'):  # Remove country code if present
-                    phone_number = phone_number[2:]
+            
                 
                 # Get user's email credentials from database
                 try:
@@ -702,13 +708,18 @@ def reply_email(request):
                     return JsonResponse({'status': 'error', 'message': 'Email account not configured'})
                 except Exception as e:
                     return JsonResponse({'status': 'error', 'message': f'Error sending email: {str(e)}'})
-                
+            elif "#Summary" in message_body:
+                # remove #Summary from the message
+                # message_body = message_body.replace("#Summary", "")
+                summary = simple_summary(quoted_body)
+                send(phone_number,summary)
+                return JsonResponse({'status': 'success', 'message': 'Summary sent'})
+       
         except json.JSONDecodeError:
             return JsonResponse({'status': 'error', 'message': 'Invalid JSON'})
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': f'Unexpected error: {str(e)}'})
-    
-    return JsonResponse({'status': 'error', 'message': 'Only POST method is allowed'})
+   
                         
          
 import imaplib
@@ -749,16 +760,17 @@ from myapp.models import Email  # Import your Email model
 import re
 import nltk
 from nltk.tokenize import sent_tokenize
-
+client =  openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 def simple_summary(email_content):
-    # Tokenize into sentences
-    sentences = sent_tokenize(email_content)
-
-    # Extract sentences that contain important words
-    important_sentences = [s for s in sentences if re.search(r"(meeting|deadline|important|action|urgent|ASAP)", s, re.I)]
-
-    # If no important sentence is found, return the first 2 sentences as a summary
-    return " ".join(important_sentences[:3]) if important_sentences else " ".join(sentences[:2])
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "Summarize the following email in 3-4 sentences, keeping important details."},
+            {"role": "user", "content": email_content}
+        ]
+    )
+    return response.choices[0].message.content
+  
 import json
 @csrf_exempt
 def ultramsg_webhook(request):
