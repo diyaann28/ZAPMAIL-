@@ -628,7 +628,7 @@ def reply_email(request):
             if not quoted_body or 'New Email Received' not in quoted_body:
                 print("NOT A REPLY MSG!")
                 # return JsonResponse({'status': 'error', 'message': 'Not a reply to an email notification'})
-            if "#Reply" in message_body:
+            if "#Reply" in message_body or "#reply" in message_body:
                 # remove #Reply from the message
                 message_body = message_body.replace("#Reply", "")
                 # Extract the email address from the quoted message
@@ -708,7 +708,7 @@ def reply_email(request):
                     return JsonResponse({'status': 'error', 'message': 'Email account not configured'})
                 except Exception as e:
                     return JsonResponse({'status': 'error', 'message': f'Error sending email: {str(e)}'})
-            elif "#Summary" in message_body:
+            elif "#Summary" in message_body or "#summary" in message_body:
                 # remove #Summary from the message
                 # message_body = message_body.replace("#Summary", "")
                 summary = simple_summary(quoted_body)
