@@ -892,7 +892,7 @@ def user_viewmails(request):
 
 
 def check(request, id):
-    # send(id,"PLEASE WAIT...FETCHING....")
+    send(id,"PLEASE WAIT...FETCHING....")
     print(request)
     print(id)
     # Call the check_mail function with the provided ID
