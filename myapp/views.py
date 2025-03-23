@@ -243,8 +243,8 @@ def check_mail(id,multiEmail):
                             # print(f"Content:\n{email_content[:500]}")  # Show first 500 chars
                             # print(f"Attachments: {', '.join(attachments) if attachments else 'None'}")
                             flag=0
-                            # spam=cl.check(msg)
-                            spam = "ham"
+                            spam=cl.check(msg)
+                            # spam = "ham"
                             # print(spam,"----"*100)
                             if spam =="ham":
                                 spam="not spam"
