@@ -108,11 +108,13 @@ def extract_email_body(msg):
 def check_mail(id,multiEmail):
     id = str(id)[2:]
     print("id",id)
+    num="91"+id
     try:
         gg=User.objects.get(phoneno=id)
         ff=Emails.objects.filter(USER_id=gg.id)
+        send(num,"Checking for emails...")
     except:
-        num="91"+id
+      
         send(num,"Sorry! You have not registered with us. Please register on Zapmail to use our services.")
         return "No user found"
     
