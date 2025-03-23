@@ -106,14 +106,16 @@ def extract_email_body(msg):
 def check_mail(id):
     id = str(id)[2:]
     print("id",id)
-    gg=User.objects.get(phoneno=id)
-    ff=Emails.objects.filter(USER_id=gg.id)
-    if(not gg):
-        send(id,"Sorry! No user found, Kindly regiter on ZapMail and Try again!")
+    try:
+        gg=User.objects.get(phoneno=id)
+        ff=Emails.objects.filter(USER_id=gg.id)
+        send(id,"PLEASE WAIT...FETCHING....")
+    except:
+        num="91"+id
+        send(num,"Sorry! You have not registered with us. Please register on Zapmail to use our services.")
         return "No user found"
-    if(not ff):
-        send(id,"Sorry! No email found, Kindly add email account on ZapMail and Try again!")
-        return "No email found"
+    
+  
     for i in ff:
         # remove the country code from the phone number
         
@@ -605,6 +607,8 @@ import http.client
 import ssl
 
 def send(TO_NUMBER, MESSAGE):
+    print("Sending message to", TO_NUMBER)
+    print("Message:", MESSAGE)
     # Establish a secure connection
     conn = http.client.HTTPSConnection("api.ultramsg.com", context=ssl._create_unverified_context())
 
@@ -919,7 +923,7 @@ def user_viewmails(request):
 
 
 def check(request, id):
-    send(id,"PLEASE WAIT...FETCHING....")
+    
     print(request)
     print(id)
     # Call the check_mail function with the provided ID
