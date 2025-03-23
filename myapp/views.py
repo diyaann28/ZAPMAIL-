@@ -32,6 +32,8 @@ import html2text
 
 TOKEN = "68xjq335qtkqx8z9"
 INSTANCE_ID = "instance110889"
+def remove_emojis(text):
+    return emoji.replace_emoji(text, replace='')
 def login(request):
     save_contact(TOKEN,INSTANCE_ID,"7034955751","Zapemail")
     if 'submit' in request.POST:
@@ -103,13 +105,12 @@ def extract_email_body(msg):
         return None
 
 
-def check_mail(id):
+def check_mail(id,multiEmail):
     id = str(id)[2:]
     print("id",id)
     try:
         gg=User.objects.get(phoneno=id)
         ff=Emails.objects.filter(USER_id=gg.id)
-        send(id,"PLEASE WAIT...FETCHING....")
     except:
         num="91"+id
         send(num,"Sorry! You have not registered with us. Please register on Zapmail to use our services.")
@@ -118,189 +119,192 @@ def check_mail(id):
   
     for i in ff:
         # remove the country code from the phone number
-        
         uu = User.objects.get(id=gg.id)
-        
-        email_id=i.EMAIL
-        password=i.password
-        yournumber=uu.phoneno
-        EMAIL_HOST = "imap.gmail.com"
-        EMAIL_PORT = 993
-        print("hereeeeeeeeeeeeeeeeeeeeeeeeee: "+ password,email_id,yournumber)
-        ATTACHMENT_DIR = "attachments"
-        import os
-        os.makedirs(ATTACHMENT_DIR, exist_ok=True)
+        if multiEmail==i.EMAIL:
+            email_id=i.EMAIL
+            password=i.password
+            yournumber=uu.phoneno
+            EMAIL_HOST = "imap.gmail.com"
+            EMAIL_PORT = 993
+            print("hereeeeeeeeeeeeeeeeeeeeeeeeee: "+ password,email_id,yournumber)
+            ATTACHMENT_DIR = "attachments"
+            import os
+            os.makedirs(ATTACHMENT_DIR, exist_ok=True)
 
-        try:
-            # Connect to the mail server
-            mail = imaplib.IMAP4_SSL(EMAIL_HOST, EMAIL_PORT)
-            mail.login(email_id, password)
+            try:
+                # Connect to the mail server
+                mail = imaplib.IMAP4_SSL(EMAIL_HOST, EMAIL_PORT)
+                mail.login(email_id, password)
+                
+                # Select mailbox
+                status, mailbox = mail.select("inbox")
             
-            # Select mailbox
-            status, mailbox = mail.select("inbox")
-           
-            if status != "OK":
-                print("Error selecting mailbox:", mailbox)
-                mail.logout()
-                exit()
+                if status != "OK":
+                    print("Error selecting mailbox:", mailbox)
+                    mail.logout()
+                    exit()
 
-            # Search for all emails
-            status, messages = mail.search(None, "ALL")
-            if not messages or messages == [b'']:  # No emails found
-                print("No emails found.")
-                mail.logout()
-                exit()
+                # Search for all emails
+                status, messages = mail.search(None, "ALL")
+                if not messages or messages == [b'']:  # No emails found
+                    print("No emails found.")
+                    mail.logout()
+                    exit()
 
-            email_ids = messages[0].split()
-            print(f"Found {len(email_ids)} emails.")
+                email_ids = messages[0].split()
+                print(f"Found {len(email_ids)} emails.")
 
-            for email_id in email_ids[-5:]:  # Fetch last 5 emails
-                status, msg_data = mail.fetch(email_id, "(RFC822)")
+                for email_id in email_ids[-5:]:  # Fetch last 5 emails
+                    status, msg_data = mail.fetch(email_id, "(RFC822)")
 
-                for response_part in msg_data:
-                    if isinstance(response_part, tuple):
-                        msg = email.message_from_bytes(response_part[1])
-                        # print(msg)
+                    for response_part in msg_data:
+                        if isinstance(response_part, tuple):
+                            msg = email.message_from_bytes(response_part[1])
+                            # print(msg)
+                        
+                            umsg=extract_email_body(msg)
+                            soup = BeautifulSoup(umsg, "html.parser")
+                            plain_text = soup.get_text(separator="\n").strip()
+
+                            # Remove excessive blank lines
+                            clean_text = "\n".join(line.strip() for line in plain_text.split("\n") if line.strip())
+                            # remove emoji
+                            clean_text = remove_emojis(clean_text)
                     
-                        umsg=extract_email_body(msg)
-                        soup = BeautifulSoup(umsg, "html.parser")
-                        plain_text = soup.get_text(separator="\n").strip()
-
-                        # Remove excessive blank lines
-                        clean_text = "\n".join(line.strip() for line in plain_text.split("\n") if line.strip())
-
-                        # response = client.chat.completions.create(
-                        # model="gpt-3.5-turbo",
-                        # messages=[
-                        #     {"role": "system", "content": "Format the mail as a WhatsApp message."},
-                        #     {"role": "user", "content": umsg}
-                        # ])
-                        # print(response.choices[0].message.content) 
-                       
+                            print(clean_text)
+                            # response = client.chat.completions.create(
+                            # model="gpt-3.5-turbo",
+                            # messages=[
+                            #     {"role": "system", "content": "Format the mail as a WhatsApp message."},
+                            #     {"role": "user", "content": umsg}
+                            # ])
+                            # print(response.choices[0].message.content) 
                         
-                        # Extract email details
-                        email_from = msg.get("From", "(Unknown Sender)")
-                        email_to = msg.get("To", "(Unknown Recipient)")
-                        date_header = msg.get("Date")
-                        print("date_header: ",date_header+"-----------------"+"email_from: "+email_from+"email_to: "+email_to)
-                        # Parse date and time
-                        if date_header:
-                            email_date = email.utils.parsedate_to_datetime(date_header)
-                            email_date_str = email_date.strftime("%Y-%m-%d")
-                            email_time_str = email_date.strftime("%H:%M:%S")
-                        else:
-                            email_date_str = "Unknown"
-                            email_time_str = "Unknown"
-
-                        # Extract subject
-                        subject_header = msg["Subject"]
-                        if subject_header:
-                            subject, encoding = decode_header(subject_header)[0]
-                        if isinstance(subject, bytes):
-                            try:
-                                subject = subject.decode(encoding or "utf-8", errors="replace")  # Use 'replace' to avoid errors
-                            except UnicodeDecodeError:
-                                subject = subject.decode("utf-8", errors="ignore")  # Fallback
-                        else:
-                                subject = "No Subject"
-
-# Ensure subject length does not exceed MySQL column size (255 characters)
-                        subject = subject[:255]
-
-                        # Extract email content
-                        email_content = ""
-                        for part in msg.walk():
-                            if part.get_content_type() == "text/plain":
-                                email_content = part.get_payload(decode=True).decode(errors="ignore")
-                                email_content = html.unescape(email_content) 
-
-                        # Extract attachments
-                        attachments = []
-                        for part in msg.walk():
-                            if part.get_content_disposition() == "attachment":
-                                filename = part.get_filename()
-                                if filename:
-                                    filename, encoding = decode_header(filename)[0]
-                                    if isinstance(filename, bytes):
-                                        filename = filename.decode(encoding or "utf-8")
-
-                                    file_path = os.path.join(ATTACHMENT_DIR, filename)
-                                    with open(file_path, "wb") as f:
-                                        f.write(part.get_payload(decode=True))
-                                    attachments.append(filename)
-
-                        # Print structured email details
-                        # print("\n-------------------------------------")
-                        # print(f"Email From: {email_from}")
-                        # print(f"Email To: {email_to}")
-                        # print(f"Date: {email_date_str} | Time: {email_time_str}")
-                        # print(f"Subject: {subject}")
-                        # print(f"Content:\n{email_content[:500]}")  # Show first 500 chars
-                        # print(f"Attachments: {', '.join(attachments) if attachments else 'None'}")
-                        flag=0
-                        # spam=cl.check(msg)
-                        spam = "ham"
-                        # print(spam,"----"*100)
-                        if spam =="ham":
-                            spam="not spam"
-                        
-                        if Email.objects.filter(email_from=email_from,email_to=email_to,content=email_content[:500],status='viewed').exists():
-                            flag=flag+1
-                            pass
-                        if flag==5:
-                            send(yournumber,"No New Emails, Enjoy Your Day!!")
-                            flag=0
-                        else:
-                            latest_email = Email.objects.order_by('-id').first()
-                            if latest_email:
-                                code_next=latest_email.code+1
+                            
+                            # Extract email details
+                            email_from = msg.get("From", "(Unknown Sender)")
+                            email_to = msg.get("To", "(Unknown Recipient)")
+                            date_header = msg.get("Date")
+                            print("date_header: ",date_header+"-----------------"+"email_from: "+email_from+"email_to: "+email_to)
+                            # Parse date and time
+                            if date_header:
+                                email_date = email.utils.parsedate_to_datetime(date_header)
+                                email_date_str = email_date.strftime("%Y-%m-%d")
+                                email_time_str = email_date.strftime("%H:%M:%S")
                             else:
-                                code_next=1000
-                            subject = remove_emojis(subject)
-                            dd=Email()
-                            dd.email_from=email_from
-                            dd.email_to=email_to
-                            dd.subject=subject
-                            dd.content=clean_text
-                            dd.date=email_date_str
-                            dd.time=email_date_str
-                            dd.attatchment=', '.join(attachments) if attachments else 'None'
-                            dd.status="viewed"
-                            dd.code=code_next
-                            dd.result=spam
-                            dd.save()
+                                email_date_str = "Unknown"
+                                email_time_str = "Unknown"
+
+                            # Extract subject
+                            subject_header = msg["Subject"]
+                            if subject_header:
+                                subject, encoding = decode_header(subject_header)[0]
+                            if isinstance(subject, bytes):
+                                try:
+                                    subject = subject.decode(encoding or "utf-8", errors="replace")  # Use 'replace' to avoid errors
+                                except UnicodeDecodeError:
+                                    subject = subject.decode("utf-8", errors="ignore")  # Fallback
+                            else:
+                                    subject = "No Subject"
+
+    # Ensure subject length does not exceed MySQL column size (255 characters)
+                            subject = subject[:255]
+
+                            # Extract email content
+                            email_content = ""
+                            for part in msg.walk():
+                                if part.get_content_type() == "text/plain":
+                                    email_content = part.get_payload(decode=True).decode(errors="ignore")
+                                    email_content = html.unescape(email_content) 
+
+                            # Extract attachments
+                            attachments = []
+                            for part in msg.walk():
+                                if part.get_content_disposition() == "attachment":
+                                    filename = part.get_filename()
+                                    if filename:
+                                        filename, encoding = decode_header(filename)[0]
+                                        if isinstance(filename, bytes):
+                                            filename = filename.decode(encoding or "utf-8")
+
+                                        file_path = os.path.join(ATTACHMENT_DIR, filename)
+                                        with open(file_path, "wb") as f:
+                                            f.write(part.get_payload(decode=True))
+                                        attachments.append(filename)
+
+                            # Print structured email details
+                            # print("\n-------------------------------------")
+                            # print(f"Email From: {email_from}")
+                            # print(f"Email To: {email_to}")
+                            # print(f"Date: {email_date_str} | Time: {email_time_str}")
+                            # print(f"Subject: {subject}")
+                            # print(f"Content:\n{email_content[:500]}")  # Show first 500 chars
+                            # print(f"Attachments: {', '.join(attachments) if attachments else 'None'}")
+                            flag=0
+                            # spam=cl.check(msg)
+                            spam = "ham"
+                            # print(spam,"----"*100)
+                            if spam =="ham":
+                                spam="not spam"
+                            
+                            if Email.objects.filter(email_from=email_from,email_to=email_to,content=email_content[:500],status='viewed').exists():
+                                flag=flag+1
+                                pass
+                            if flag==5:
+                                send(yournumber,"No New Emails, Enjoy Your Day!!")
+                                flag=0
+                            else:
+                                latest_email = Email.objects.order_by('-id').first()
+                                if latest_email:
+                                    code_next=latest_email.code+1
+                                else:
+                                    code_next=1000
+                                subject = remove_emojis(subject)
+                                dd=Email()
+                                dd.email_from=email_from
+                                dd.email_to=email_to
+                                dd.subject=subject
+                                dd.content=clean_text
+                                dd.date=email_date_str
+                                dd.time=email_date_str
+                                dd.attatchment=', '.join(attachments) if attachments else 'None'
+                                dd.status="viewed"
+                                dd.code=code_next
+                                dd.result=spam
+                                dd.save()
 
 
-                            # client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+                                # client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
-                            message_body = f"""
-📩 *New Email Received* 📩\n
+                                message_body = f"""
+                                📩 *New Email Received* 📩\n
 
-📧 *From*: {dd.email_from} \n
-📨 *To*: {dd.email_to}\n
-📝 *Subject*: {dd.subject}\n
-📝 *Content*: {clean_text}\n
-📅 *Date*: {dd.date} ⏰ {dd.time}\n
-📎 *Attachments*: {dd.attatchment if dd.attatchment else 'None'}\n
-"""
+                                📧 *From*: {dd.email_from} \n
+                                📨 *To*: {dd.email_to}\n
+                                📝 *Subject*: {dd.subject}\n
+                                📝 *Content*: {clean_text}\n
+                                📅 *Date*: {dd.date} ⏰ {dd.time}\n
+                                📎 *Attachments*: {dd.attatchment if dd.attatchment else 'None'}\n
+                                 """
 
 
-                            # message = client.messages.create(
-                            #     from_=TWILIO_WHATSAPP_NUMBER,
-                            #     body=message_body,
-                            #     to=yournumber
-                            # )
-                            if spam == "not spam":
-                                send_message_to_whatsapp(message_body,dd.email_from,yournumber)
-                                print(f"WhatsApp Message Sent! SID")
+                                # message = client.messages.create(
+                                #     from_=TWILIO_WHATSAPP_NUMBER,
+                                #     body=message_body,
+                                #     to=yournumber
+                                # )
+                                if spam == "not spam":
+                                    send_message_to_whatsapp(message_body,dd.email_from,yournumber)
+                                    print(f"WhatsApp Message Sent! SID")
 
-            mail.logout()
+                mail.logout()
+                return "ok"
 
-        except imaplib.IMAP4.error as e:
-            print(f"IMAP error: {e}")
-        except Exception as e:
-            print(f"Unexpected error: {e}")
-    return "ok"
+            except imaplib.IMAP4.error as e:
+                print(f"IMAP error: {e}")
+            except Exception as e:
+                print(f"Unexpected error: {e}")
+            
 
 def index(request):
      return render(request,'public/index.html')
@@ -922,12 +926,12 @@ def user_viewmails(request):
           
 
 
-def check(request, id):
+def check(request, id,mails):
     
     print(request)
     print(id)
     # Call the check_mail function with the provided ID
-    result = check_mail(id)
+    result = check_mail(id,mails)
    
     # Provide feedback
     if result == "ok":

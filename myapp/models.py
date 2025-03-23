@@ -58,4 +58,3 @@ class Remainder(models.Model):
     time=models.CharField(max_length=50)
 
 
-
