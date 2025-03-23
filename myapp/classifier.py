@@ -2,7 +2,7 @@ from textblob.classifiers import NaiveBayesClassifier
 import pandas
 def check(res):
 
-    var = "static\spamham.csv"
+    var = "static/spamham.csv"
 
     pd = pandas.read_csv(var)
 
