@@ -113,6 +113,7 @@ def check_mail(id,multiEmail):
         gg=User.objects.get(phoneno=id)
         ff=Emails.objects.filter(USER_id=gg.id)
         send(num,"Checking for emails...")
+        send(num,"Checking for spams! Please wait for 30 seconds...")
     except:
       
         send(num,"Sorry! You have not registered with us. Please register on Zapmail to use our services.")
