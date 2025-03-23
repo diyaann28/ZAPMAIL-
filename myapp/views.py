@@ -760,7 +760,29 @@ def reply_email(request):
                 summary = simple_summary(quoted_body)
                 send(phone_number,summary)
                 return JsonResponse({'status': 'success', 'message': 'Summary sent'})
-            
+            elif "#search" in message_body or "#Search" in message_body:
+                # search based on subject from email
+                # remove #search from the message
+                message_body = message_body.replace("#search", "")
+                subject = message_body
+                email = Email.objects.filter(subject__icontains=subject)
+                if email:
+                    for i in email:
+                        body = f"""
+                        📧 *Email Details* 📧\n
+
+                        📧 *From*: {i.email_from} \n
+                        📧 *To*: {i.email_to}\n
+                        📧 *Subject*: {i.subject}\n
+                        📧 *Content*: {i.content}\n
+                        📧 *Date*: {i.date} ⏰ {i.time}\n
+                        📧 *Attachments*: {i.attatchment if i.attatchment else 'None'}\n
+                        """
+                        send(phone_number,body)
+                    return JsonResponse({'status': 'success', 'message': 'Email details sent'})
+                else:
+                    return JsonResponse({'status': 'error', 'message': 'No email found'})
+
             else:
                 return JsonResponse({'status': 'error', 'message': 'Invalid command'})
              
