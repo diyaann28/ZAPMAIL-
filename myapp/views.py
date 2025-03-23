@@ -108,7 +108,12 @@ def check_mail(id):
     print("id",id)
     gg=User.objects.get(phoneno=id)
     ff=Emails.objects.filter(USER_id=gg.id)
-    
+    if(not gg):
+        send(id,"Sorry! No user found, Kindly regiter on ZapMail and Try again!")
+        return "No user found"
+    if(not ff):
+        send(id,"Sorry! No email found, Kindly add email account on ZapMail and Try again!")
+        return "No email found"
     for i in ff:
         # remove the country code from the phone number
         
@@ -770,8 +775,7 @@ def reply_email(request):
                     for i in email:
                         body = f"""
                         📧 *Email Details* 📧\n
-
-                        📧 *From*: {i.email_from} \n
+                        📧 *From*: {i.email_from}\n
                         📧 *To*: {i.email_to}\n
                         📧 *Subject*: {i.subject}\n
                         📧 *Content*: {i.content}\n
@@ -781,6 +785,7 @@ def reply_email(request):
                         send(phone_number,body)
                     return JsonResponse({'status': 'success', 'message': 'Email details sent'})
                 else:
+                    send(phone_number,"Sorry! Search not found!")
                     return JsonResponse({'status': 'error', 'message': 'No email found'})
 
             else:
