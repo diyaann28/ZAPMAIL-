@@ -165,6 +165,9 @@ def check_mail(id,multiEmail):
                             # print(msg)
                         
                             umsg=extract_email_body(msg)
+                           
+                            if umsg is None:
+                                continue
                             soup = BeautifulSoup(umsg, "html.parser")
                             plain_text = soup.get_text(separator="\n").strip()
 
@@ -174,14 +177,6 @@ def check_mail(id,multiEmail):
                             clean_text = remove_emojis(clean_text)
                     
                             print(clean_text)
-                            # response = client.chat.completions.create(
-                            # model="gpt-3.5-turbo",
-                            # messages=[
-                            #     {"role": "system", "content": "Format the mail as a WhatsApp message."},
-                            #     {"role": "user", "content": umsg}
-                            # ])
-                            # print(response.choices[0].message.content) 
-                        
                             
                             # Extract email details
                             email_from = msg.get("From", "(Unknown Sender)")
@@ -209,7 +204,7 @@ def check_mail(id,multiEmail):
                             else:
                                     subject = "No Subject"
 
-    # Ensure subject length does not exceed MySQL column size (255 characters)
+   
                             subject = subject[:255]
 
                             # Extract email content
@@ -234,14 +229,7 @@ def check_mail(id,multiEmail):
                                             f.write(part.get_payload(decode=True))
                                         attachments.append(filename)
 
-                            # Print structured email details
-                            # print("\n-------------------------------------")
-                            # print(f"Email From: {email_from}")
-                            # print(f"Email To: {email_to}")
-                            # print(f"Date: {email_date_str} | Time: {email_time_str}")
-                            # print(f"Subject: {subject}")
-                            # print(f"Content:\n{email_content[:500]}")  # Show first 500 chars
-                            # print(f"Attachments: {', '.join(attachments) if attachments else 'None'}")
+                         
                             flag=0
                             spam=cl.check(msg)
                             # spam = "ham"
@@ -276,7 +264,7 @@ def check_mail(id,multiEmail):
                                 dd.save()
 
 
-                                # client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+                               
 
                                 message_body = f"""
                                 📩 *New Email Received* 📩\n
@@ -290,11 +278,7 @@ def check_mail(id,multiEmail):
                                  """
 
 
-                                # message = client.messages.create(
-                                #     from_=TWILIO_WHATSAPP_NUMBER,
-                                #     body=message_body,
-                                #     to=yournumber
-                                # )
+                               
                                 if spam == "not spam":
                                     send_message_to_whatsapp(message_body,dd.email_from,yournumber)
                                     print(f"WhatsApp Message Sent! SID")
@@ -304,8 +288,7 @@ def check_mail(id,multiEmail):
 
             except imaplib.IMAP4.error as e:
                 print(f"IMAP error: {e}")
-            except Exception as e:
-                print(f"Unexpected error: {e}")
+            
             
 
 def index(request):
