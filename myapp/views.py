@@ -938,6 +938,7 @@ def check(request, id,mails):
         messages.success(request, f"Successfully checked emails for user {id}")
         return HttpResponse(f"Successfully checked emails for user {id}")
     else:
+        send(id,"Sorry! The mail account is not valid. Please check the email and password.")
         messages.error(request, f"Error checking emails for user {id}")
         return HttpResponse(f"Error checking emails for user {id}")
     
