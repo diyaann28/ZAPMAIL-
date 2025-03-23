@@ -37,6 +37,7 @@ urlpatterns = [
     path('user_edit_emailacc/<id>',views.user_edit_emailacc),
     path('user_edit_profile',views.user_edit_profile),
     path('sedd',views.sedd),
+    path('summary',views.summary),
     path('reply',views.reply_email),
     path('send_sms',views.sendsms),
     path('check/<int:id>', views.check, name='check'),

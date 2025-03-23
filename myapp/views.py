@@ -18,6 +18,7 @@ from django.contrib import messages
 from django.shortcuts import redirect
 import emoji
 import html
+from bs4 import BeautifulSoup
 from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
 from django.db import models
@@ -27,6 +28,8 @@ from twilio.rest import Client
 load_dotenv()
 import http.client
 import ssl
+import html2text
+
 TOKEN = "68xjq335qtkqx8z9"
 INSTANCE_ID = "instance110889"
 def login(request):
@@ -67,6 +70,39 @@ def login(request):
     return render(request,'public/login.html')
 def remove_emojis(text):
     return emoji.replace_emoji(text, replace='')  
+
+
+def extract_email_body(msg):
+    """
+    Extracts the HTML body from an email string.
+
+    Args:
+        email_string (str): The raw email string.
+
+    Returns:
+        str: The HTML body of the email, or None if not found.
+    """
+    try:
+    
+
+        if msg.is_multipart():
+            for part in msg.walk():
+                content_type = part.get_content_type()
+                content_disposition = str(part.get("Content-Disposition"))
+
+                if content_type == "text/html" and "attachment" not in content_disposition:
+                    return part.get_payload(decode=True).decode()
+        else:
+            content_type = msg.get_content_type()
+            if content_type == "text/html":
+                return msg.get_payload(decode=True).decode()
+
+        return None  # No HTML body found
+    except Exception as e:
+        print(f"Error extracting email body: {e}")
+        return None
+
+
 def check_mail(id):
     id = str(id)[2:]
     print("id",id)
@@ -92,9 +128,10 @@ def check_mail(id):
             # Connect to the mail server
             mail = imaplib.IMAP4_SSL(EMAIL_HOST, EMAIL_PORT)
             mail.login(email_id, password)
-
+            
             # Select mailbox
             status, mailbox = mail.select("inbox")
+           
             if status != "OK":
                 print("Error selecting mailbox:", mailbox)
                 mail.logout()
@@ -116,12 +153,29 @@ def check_mail(id):
                 for response_part in msg_data:
                     if isinstance(response_part, tuple):
                         msg = email.message_from_bytes(response_part[1])
+                        # print(msg)
+                    
+                        umsg=extract_email_body(msg)
+                        soup = BeautifulSoup(umsg, "html.parser")
+                        plain_text = soup.get_text(separator="\n").strip()
 
+                        # Remove excessive blank lines
+                        clean_text = "\n".join(line.strip() for line in plain_text.split("\n") if line.strip())
+
+                        # response = client.chat.completions.create(
+                        # model="gpt-3.5-turbo",
+                        # messages=[
+                        #     {"role": "system", "content": "Format the mail as a WhatsApp message."},
+                        #     {"role": "user", "content": umsg}
+                        # ])
+                        # print(response.choices[0].message.content) 
+                       
+                        
                         # Extract email details
                         email_from = msg.get("From", "(Unknown Sender)")
                         email_to = msg.get("To", "(Unknown Recipient)")
                         date_header = msg.get("Date")
-                        
+                        print("date_header: ",date_header+"-----------------"+"email_from: "+email_from+"email_to: "+email_to)
                         # Parse date and time
                         if date_header:
                             email_date = email.utils.parsedate_to_datetime(date_header)
@@ -169,17 +223,17 @@ def check_mail(id):
                                     attachments.append(filename)
 
                         # Print structured email details
-                        print("\n-------------------------------------")
-                        print(f"Email From: {email_from}")
-                        print(f"Email To: {email_to}")
-                        print(f"Date: {email_date_str} | Time: {email_time_str}")
-                        print(f"Subject: {subject}")
-                        print(f"Content:\n{email_content[:500]}")  # Show first 500 chars
-                        print(f"Attachments: {', '.join(attachments) if attachments else 'None'}")
+                        # print("\n-------------------------------------")
+                        # print(f"Email From: {email_from}")
+                        # print(f"Email To: {email_to}")
+                        # print(f"Date: {email_date_str} | Time: {email_time_str}")
+                        # print(f"Subject: {subject}")
+                        # print(f"Content:\n{email_content[:500]}")  # Show first 500 chars
+                        # print(f"Attachments: {', '.join(attachments) if attachments else 'None'}")
                         flag=0
                         # spam=cl.check(msg)
                         spam = "ham"
-                        print(spam,"----"*100)
+                        # print(spam,"----"*100)
                         if spam =="ham":
                             spam="not spam"
                         
@@ -200,7 +254,7 @@ def check_mail(id):
                             dd.email_from=email_from
                             dd.email_to=email_to
                             dd.subject=subject
-                            dd.content=email_content[:500]
+                            dd.content=clean_text
                             dd.date=email_date_str
                             dd.time=email_date_str
                             dd.attatchment=', '.join(attachments) if attachments else 'None'
@@ -213,17 +267,14 @@ def check_mail(id):
                             # client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
                             message_body = f"""
-📩 *New Email Received* 📩
+📩 *New Email Received* 📩\n
 
-📧 *From*: {dd.email_from}
-📨 *To*: {dd.email_to}
-📝 *Subject*: {dd.subject}
-📝 *Content*: {dd.content}
-📅 *Date*: {dd.date} ⏰ {dd.time}
-📎 *Attachments*: {dd.attatchment if dd.attatchment else 'None'}
-
-📌 *Status*: {dd.status}
-🔢 *Code*: {dd.code}
+📧 *From*: {dd.email_from} \n
+📨 *To*: {dd.email_to}\n
+📝 *Subject*: {dd.subject}\n
+📝 *Content*: {clean_text}\n
+📅 *Date*: {dd.date} ⏰ {dd.time}\n
+📎 *Attachments*: {dd.attatchment if dd.attatchment else 'None'}\n
 """
 
 
@@ -579,12 +630,7 @@ def send_message_to_whatsapp(email_subject, email_from,TO_number):
     save_contact(TOKEN, INSTANCE_ID, TO_NUMBER, "ZapEmail")
     # ✅ Dynamic Message with "ZapEmail"
     MESSAGE = f"""
-        📩 *New Email Received in ZapEmail*
-    ----------------------------------------
-    *From:* {email_from}
-    *Subject:* {email_subject}
-
-    ✅ Please check your email panel on ZapEmail.
+        {email_subject}
         """
 
     # Establish a secure connection
@@ -714,6 +760,7 @@ def reply_email(request):
                 summary = simple_summary(quoted_body)
                 send(phone_number,summary)
                 return JsonResponse({'status': 'success', 'message': 'Summary sent'})
+            
             else:
                 return JsonResponse({'status': 'error', 'message': 'Invalid command'})
              
@@ -845,7 +892,7 @@ def user_viewmails(request):
 
 
 def check(request, id):
-    send(id,"PLEASE WAIT...FETCHING....")
+    # send(id,"PLEASE WAIT...FETCHING....")
     print(request)
     print(id)
     # Call the check_mail function with the provided ID
