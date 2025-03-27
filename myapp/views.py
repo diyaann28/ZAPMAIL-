@@ -30,8 +30,8 @@ import http.client
 import ssl
 import html2text
 
-TOKEN = "tq84hxe9eb8r441m"
-INSTANCE_ID = "instance110828"
+TOKEN = "xdi0xk90ddwry2ro"
+INSTANCE_ID = "instance96059"
 def remove_emojis(text):
     return emoji.replace_emoji(text, replace='')
 def login(request):
