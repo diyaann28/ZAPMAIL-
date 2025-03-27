@@ -669,6 +669,9 @@ def reply_email(request):
             quoted_msg = whatsapp_data.get('quotedMsg', {})
             quoted_body = quoted_msg.get('body', '')
             phone_number = whatsapp_data.get('from', '').split('@')[0]
+            print(phone_number)
+            # elimiate country code from phone number
+            phone_number = phone_number[2:]
             
             if not quoted_body or 'New Email Received' not in quoted_body:
                 print("NOT A REPLY MSG!")
@@ -676,6 +679,7 @@ def reply_email(request):
             if "#Reply" in message_body or "#reply" in message_body:
                 # remove #Reply from the message
                 message_body = message_body.replace("#Reply", "")
+                print(message_body)
                 # Extract the email address from the quoted message
                 email_from_match = re.search(r'\*From\*:\s*(.*?)(?:\n|$)', quoted_body)
                 if not email_from_match:
@@ -748,6 +752,7 @@ def reply_email(request):
                     })
                     
                 except User.DoesNotExist:
+                    # print error as is
                     return JsonResponse({'status': 'error', 'message': 'User not found'})
                 except Emails.DoesNotExist:
                     return JsonResponse({'status': 'error', 'message': 'Email account not configured'})
