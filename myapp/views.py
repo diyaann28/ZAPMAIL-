@@ -679,6 +679,7 @@ def reply_email(request):
             if "#Reply" in message_body or "#reply" in message_body:
                 # remove #Reply from the message
                 message_body = message_body.replace("#Reply", "")
+                message_body = message_body.replace("#reply", "")
                 print(message_body)
                 # Extract the email address from the quoted message
                 email_from_match = re.search(r'\*From\*:\s*(.*?)(?:\n|$)', quoted_body)
