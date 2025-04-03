@@ -30,8 +30,8 @@ import http.client
 import ssl
 import html2text
 
-TOKEN = "xdi0xk90ddwry2ro"
-INSTANCE_ID = "instance96059"
+TOKEN = "68xjq335qtkqx8z9"
+INSTANCE_ID = "instance110889"
 def remove_emojis(text):
     return emoji.replace_emoji(text, replace='')
 def login(request):
@@ -919,8 +919,7 @@ def user_viewmails(request):
 
 def check(request, id,mails):
     
-    print(request)
-    print(id)
+  
     # Call the check_mail function with the provided ID
     result = check_mail(id,mails)
    
