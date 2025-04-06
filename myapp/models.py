@@ -17,7 +17,7 @@ class User(models.Model):
     pincode=models.CharField(max_length=50)
     post=models.CharField(max_length=50)
     city=models.CharField(max_length=50)
-    district=models.CharField(max_length=50)
+    district=models.CharField(max_length=50,default="")
     
 class Complaint(models.Model):
     USER=models.ForeignKey(User,on_delete=models.CASCADE)
