@@ -328,7 +328,7 @@ def register(request):
         if int(otp) == int(otp1):
             q=Login(username=username,password=password,usertype='user')
             q.save()
-            q1=User(LOGIN=q,firstname=firstname,lastname=lastname,username=username,email=email,phoneno=number,place=place,pincode=pincode,post=post,city=city)
+            q1=User(LOGIN=q,firstname=firstname,lastname=lastname,username=username,email=email,phoneno=number,place=place,pincode=pincode,post=post,city=city,district=districts)
             q1.save()
             
             message_body = f"""
