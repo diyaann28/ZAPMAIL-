@@ -13,7 +13,8 @@
         background-color: #fff;
         box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
         border-radius: 10px;
-        width: 500px;
+        width: 90%;
+        max-width: 500px;
         margin: 50px auto;
         padding: 30px;
         text-align: center;
@@ -26,45 +27,39 @@
 
     .card h1 {
         font-family: Georgia, 'Times New Roman', Times, serif;
-        font-size: 2em;
+        font-size: clamp(1.5rem, 5vw, 2em);
         color: #333;
         margin-bottom: 30px;
     }
 
-    .card form {
+    .form-container {
         width: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
     }
 
-    .card form table {
-        width: 100%;
-        margin-top: 20px;
+    .form-group {
+        margin-bottom: 20px;
         text-align: left;
     }
 
-    .card form th {
-        padding: 10px;
+    .form-label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 8px;
         font-size: 16px;
         color: #333;
     }
 
-    .card form td {
-        padding: 10px;
-    }
-
-    .card form input[type="email"], .card form input[type="password"] {
-        padding: 8px 12px;
+    .form-input {
+        padding: 12px;
         border-radius: 5px;
         border: 1px solid #ddd;
         width: 100%;
         font-size: 14px;
-        margin-bottom: 15px;
+        box-sizing: border-box;
     }
 
-    .card form input[type="submit"] {
-        padding: 10px 20px;
+    .form-button {
+        padding: 12px 20px;
         background-color: rgb(87, 158, 229);
         color: white;
         border: none;
@@ -72,32 +67,58 @@
         cursor: pointer;
         font-size: 16px;
         width: 100%;
+        transition: background-color 0.3s ease;
     }
 
-    .card form input[type="submit"]:hover {
+    .form-button:hover {
         background-color: #4b76a0;
+    }
+
+    @media (max-width: 768px) {
+        .card {
+            padding: 20px;
+            margin: 30px auto;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .card {
+            padding: 15px;
+            margin: 20px auto;
+            width: 95%;
+        }
+        
+        .form-label {
+            font-size: 14px;
+        }
+        
+        .form-input {
+            padding: 10px;
+        }
     }
 </style>
 
 <div class="card">
-    <h1 style="font-family: Georgia, 'Times New Roman', Times, serif;">ADD MAIL ACCOUNT</h1>
-    <form method="post" action="">
-        <table>
-            <tr>
-                <th>Enter Email</th>
-                <td><input type="email" name="email" placeholder="example@gmail.com" required></td>
-            </tr>
-            <tr>
-                <th>Enter Passkey</th>
-                <td><input type="password" name="password" required></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td><input type="submit" name="submit" value="ADD"></td>
-            </tr>
-        </table>
-    </form>
+    <h1>ADD MAIL ACCOUNT</h1>
+    <div class="form-container">
+        <form method="post" action="">
+            <div class="form-group">
+                <label class="form-label" for="email">Enter Email</label>
+                <input class="form-input" type="email" id="email" name="email" placeholder="example@gmail.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="password">Enter Passkey</label>
+                <input class="form-input" type="password" id="password" name="password" required>
+            </div>
+            
+            <div class="form-group">
+                <input class="form-button" type="submit" name="submit" value="ADD">
+            </div>
+        </form>
+    </div>
 </div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
 {% include 'user/user_footer.html' %}
