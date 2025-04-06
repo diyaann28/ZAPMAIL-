@@ -342,6 +342,8 @@ We’re excited to have you on board! 🚀
 
 
 If you have any questions or need assistance, feel free to reach out. 📬
+
+To begin use command: Info
 """ 
             send(number,message_body)
             return HttpResponse(f"<script>alert('Registered successfully');window.location='/login'</script>")
