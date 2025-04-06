@@ -1,5 +1,6 @@
 {% include 'admin/admin_header.html' %}
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
 <style>
     body {
         font-family: Arial, sans-serif;
@@ -32,7 +33,8 @@
         text-align: left;
     }
 
-    th, td {
+    th,
+    td {
         padding: 15px;
         text-align: left;
         border-bottom: 1px solid black;
@@ -44,7 +46,7 @@
         font-size: 16px;
     }
 
-   
+
 
     td {
         color: black;
@@ -101,21 +103,21 @@
                     <th colspan="3">Reply</th>
                 </tr>
                 {% if data %}
-                    {% for i in data %}
-                        <tr>
-                            <td>{{i.USER.firstname}}</td>
-                            <td>{{i.date}}</td>
-                            <td>{{i.complaint}}</td>
-                            <td>{{i.reply}}</td>
-                            <td>
-                                <form method="post">
-                                    <input type="hidden" name="id" value="{{i.id}}">
-                                    <input type="text" name="reply" placeholder="send reply..." required>
-                                    <input type="submit" name="submit" value="Send">
-                                </form>
-                            </td>
-                        </tr>
-                    {% endfor %}
+                {% for i in data %}
+                <tr>
+                    <td>{{i.USER.firstname}}</td>
+                    <td>{{i.date}}</td>
+                    <td>{{i.complaint}}</td>
+                    <td>{{i.reply}}</td>
+                    <td>
+                        <form method="post">
+                            <input type="hidden" name="id" value="{{i.id}}">
+                            <input type="text" name="reply" placeholder="send reply..." required>
+                            <input type="submit" name="submit" value="Send">
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
                 {% endif %}
             </table>
         </div>
